@@ -1,17 +1,19 @@
-import { TableBody, TableCell, TableContainer, TableRow, Table, TableHead } from "@mui/material";
+import { TableBody, TableCell, TableContainer, TableRow, Table, TableHead, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
-import IRestaurante from "../../../interfaces/IRestaurante";
+import IRestaurante from "../../../../interfaces/IRestaurante";
 import axios from "axios";
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function AdministracaoRestaurantes() {
   const [restaurantes, setRestaurantes] = useState<IRestaurante[]>();
+  const [pesquisarRestaurante, setPesquisarRestaurante] = useState<string>("");
   useEffect(() => {
-    axios.get("http://localhost:8000/api/v2/restaurantes/").then(resposta => {
-      setRestaurantes(resposta.data);
-    });
+      axios.get("http://localhost:8000/api/v2/restaurantes/").then(resposta => {
+          const regex = new RegExp(pesquisarRestaurante, "i");
+          setRestaurantes(resposta.data.filter((restaurante: any) => regex.test(restaurante.nome)));
+      });
   }, [restaurantes]);
 
   function excluirRestaurante(id: number) {
@@ -19,7 +21,8 @@ export default function AdministracaoRestaurantes() {
   }
   return (
     <>
-      <TableContainer>
+    <TextField id="pesquisar" label="Nome do restaurante" value={pesquisarRestaurante} onChange={(event) => setPesquisarRestaurante(event.target.value)} variant="outlined" name="nome" />
+    <TableContainer>
       <Table sx={{ minWidth: 650 }} aria-label="caption table">
         <TableHead>
           <TableRow>
